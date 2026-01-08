@@ -1,13 +1,14 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Apple, Sparkles, Home, Baby, Camera, Cookie, ScanLine, User } from 'lucide-react'
 import Card from '../components/Card'
 import { authService } from '../services/authService'
 
 const CATEGORIES = [
-    { id: 'food', name: 'Food Products', icon: '🍎', color: 'bg-green-100 text-green-700 border-green-200' },
-    { id: 'cosmetics', name: 'Cosmetics', icon: '💄', color: 'bg-pink-100 text-pink-700 border-pink-200' },
-    { id: 'household', name: 'Household', icon: '🧼', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-    { id: 'baby', name: 'Baby Products', icon: '👶', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+    { id: 'food', name: 'Food Products', icon: <Apple size={32} />, description: 'Allergens & nutrition' },
+    { id: 'cosmetics', name: 'Cosmetics', icon: <Sparkles size={32} />, description: 'Toxins & irritants' },
+    { id: 'household', name: 'Household', icon: <Home size={32} />, description: 'Chemical safety' },
+    { id: 'baby', name: 'Baby Products', icon: <Baby size={32} />, description: 'Gentle & safe' },
 ]
 
 export default function LandingPage() {
@@ -20,21 +21,21 @@ export default function LandingPage() {
     }
 
     return (
-        <div className="pb-20 animate-fade-in">
+        <div className="pb-20 animate-fade-in max-w-4xl mx-auto">
             {/* Header Section */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-8 pt-4">
                 <div>
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
                         Ingredo
                     </h1>
-                    <p className="text-xs text-secondary font-medium">
-                        Know What’s Inside. Know What’s Safe.
+                    <p className="text-sm text-gray-500 font-medium">
+                        Ingredient Safety Intelligence
                     </p>
                 </div>
                 {!user && (
                     <button
                         onClick={() => navigate('/login')}
-                        className="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100"
+                        className="text-sm font-medium text-emerald-700 bg-white px-5 py-2 rounded-lg border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors"
                     >
                         Login
                     </button>
@@ -42,54 +43,67 @@ export default function LandingPage() {
                 {user && (
                     <button
                         onClick={() => navigate('/profile')}
-                        className="h-8 w-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs border border-emerald-200"
+                        className="h-10 w-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm border-2 border-white shadow-sm"
                     >
-                        {user.email[0].toUpperCase()}
+                        <User size={20} />
                     </button>
                 )}
             </div>
 
             {/* Hero Card */}
-            <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-none shadow-lg mb-8">
-                <h2 className="text-2xl font-bold mb-2">Scan & Check</h2>
-                <p className="opacity-90 mb-4 text-sm">
-                    Instantly analyze ingredients for allergens, toxins, and banned substances.
-                </p>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-3">
-                    <span className="text-2xl">📸</span>
-                    <span className="text-sm font-medium">Select a category to start</span>
+            <Card className="bg-slate-900 text-white border-none shadow-xl mb-10 overflow-hidden relative">
+                <div className="relative z-10">
+                    <h2 className="text-3xl font-bold mb-3">Analyze Your Products</h2>
+                    <p className="text-gray-300 mb-6 max-w-md leading-relaxed">
+                        Use advanced AI to detect harmful ingredients, allergens, and banned substances instantly.
+                    </p>
+                    <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 flex items-center gap-4 border border-white/10 w-fit">
+                        <ScanLine className="text-emerald-400" size={24} />
+                        <span className="text-sm font-medium">Select a category below to begin scanning</span>
+                    </div>
                 </div>
+                {/* Abstract decorative circle */}
+                <div className="absolute -right-10 -bottom-20 w-64 h-64 bg-emerald-600/20 rounded-full blur-3xl"></div>
             </Card>
 
             {/* Categories Grid */}
-            <h3 className="font-bold text-lg mb-4">What aren't you sure about?</h3>
+            <h3 className="font-bold text-xl text-gray-800 mb-6">Select Category</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {CATEGORIES.map(cat => (
                     <button
                         key={cat.id}
                         onClick={() => handleCategorySelect(cat.id)}
-                        className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-3 transition-transform active:scale-95 shadow-sm hover:shadow-md ${cat.color}`}
-                        style={{ aspectRatio: '1/1' }}
+                        className="group relative p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all text-left flex flex-col gap-4 overflow-hidden"
                     >
-                        <span style={{ fontSize: '2.5rem' }}>{cat.icon}</span>
-                        <span className="font-semibold text-sm text-center">{cat.name}</span>
+                        <div className="text-emerald-600 group-hover:scale-110 transition-transform duration-300 bg-emerald-50 w-12 h-12 rounded-lg flex items-center justify-center">
+                            {cat.icon}
+                        </div>
+                        <div>
+                            <span className="font-bold text-gray-900 block mb-1">{cat.name}</span>
+                            <span className="text-xs text-gray-500">{cat.description}</span>
+                        </div>
                     </button>
                 ))}
             </div>
 
             {/* Recent Scans Placeholder */}
-            <div className="mt-8">
-                <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-bold text-lg">Recent Scans</h3>
-                    <span className="text-xs text-secondary">View all</span>
+            <div className="mt-12">
+                <div className="flex justify-between items-end mb-4 border-b border-gray-100 pb-2">
+                    <h3 className="font-bold text-xl text-gray-800">Recent Activity</h3>
+                    <span className="text-sm text-emerald-600 font-medium cursor-pointer hover:underline">View History</span>
                 </div>
-                <div className="flex flex-col gap-3 opacity-60">
-                    <div className="bg-white p-3 rounded-lg border border-gray-100 flex items-center gap-3">
-                        <div className="h-10 w-10 bg-gray-100 rounded-md flex items-center justify-center">🍪</div>
-                        <div>
-                            <p className="font-medium text-sm">Oat Cookies</p>
-                            <p className="text-xs text-secondary">Safe • Yesterday</p>
+                <div className="flex flex-col gap-3">
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 border border-amber-100">
+                                <Cookie size={20} />
+                            </div>
+                            <div>
+                                <p className="font-semibold text-gray-900">Oat Cookies</p>
+                                <p className="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full w-fit mt-1">Safe Analysis</p>
+                            </div>
                         </div>
+                        <span className="text-xs text-gray-400">Yesterday</span>
                     </div>
                 </div>
             </div>

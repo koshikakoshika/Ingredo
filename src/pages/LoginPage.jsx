@@ -44,11 +44,25 @@ export default function LoginPage() {
 
     return (
         <div className="flex flex-col items-center justify-center" style={{ minHeight: '80vh' }}>
-            <div className="text-center mb-4">
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🥗</div>
-                <h1 className="text-lg font-bold">Ingredo</h1>
-                <p className="text-secondary">
-                    {isLogin ? 'Welcome back! Login to continue.' : 'Create an account to start scanning.'}
+            <div className="text-center mb-8">
+                <div className="mb-4 inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-emerald-100 text-emerald-600">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="32"
+                        height="32"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                </div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+                <p className="text-gray-500 text-sm">
+                    {isLogin ? 'Sign in to access your saved scans' : 'Create an account to start scanning'}
                 </p>
             </div>
 
