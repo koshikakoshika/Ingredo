@@ -1,0 +1,188 @@
+:root {
+  /* Core Colors - Safety/Medical Theme */
+  --color-primary: #10B981;
+  /* Emerald 500 */
+  --color-primary-dark: #059669;
+  /* Emerald 700 */
+  --color-primary-light: #D1FAE5;
+  /* Emerald 100 */
+
+  --color-secondary: #3B82F6;
+  /* Blue 500 */
+
+  /* Status Colors */
+  --color-safe: #10B981;
+  --color-safe-bg: #ECFDF5;
+  --color-moderate: #F59E0B;
+  /* Amber 500 */
+  --color-moderate-bg: #FFFBEB;
+  --color-unsafe: #EF4444;
+  /* Red 500 */
+  --color-unsafe-bg: #FEF2F2;
+
+  /* UI Colors */
+  --color-background: #F9FAFB;
+  /* Gray 50 */
+  --color-surface: #FFFFFF;
+  --color-text-main: #111827;
+  /* Gray 900 */
+  --color-text-secondary: #6B7280;
+  /* Gray 500 */
+  --color-border: #E5E7EB;
+  /* Gray 200 */
+
+  /* Spacing & Layout */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Effects */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--color-background);
+  color: var(--color-text-main);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Utilities */
+.container {
+  width: 100%;
+  max-width: 1024px;
+  /* Desktop friendly max-width */
+  margin: 0 auto;
+  padding: var(--spacing-md);
+  min-height: 100vh;
+  background-color: var(--color-background);
+  position: relative;
+}
+
+/* Add desktop specific padding/layout if needed */
+@media (min-width: 640px) {
+  .container {
+    padding: var(--spacing-xl);
+  }
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--color-border);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Animation Utils */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
