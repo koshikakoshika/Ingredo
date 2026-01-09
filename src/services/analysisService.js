@@ -1,3 +1,9 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+
+// Mock data kept as fallback
 const MOCK_INGREDIENTS = {
     food: [
         { name: 'Water', status: 'safe', description: 'Essential for hydration.' },
@@ -49,13 +55,101 @@ const MOCK_INGREDIENTS = {
     ]
 }
 
+// Helper to convert file to base64 for Gemini
+async function fileToGenerativePart(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve({
+            inlineData: {
+                data: reader.result.split(',')[1],
+                mimeType: file.type
+            },
+        });
+        reader.readAsDataURL(file);
+    });
+}
+
 export const analysisService = {
     analyzeImage: async (imageFile, category = 'food', userProfile) => {
+        // 1. Try Real API Analysis
+        if (genAI && imageFile) {
+            try {
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+                // If imageFile is a string (mock/webcam screenshot), we need to handle it differently 
+                // but for now let's assume it's a blob/file or base64 string
+                let imagePart;
+                if (typeof imageFile === 'string' && imageFile.startsWith('data:')) {
+                    imagePart = {
+                        inlineData: {
+                            data: imageFile.split(',')[1],
+                            mimeType: 'image/jpeg' // Assume jpeg for webcam
+                        }
+                    };
+                } else {
+                    imagePart = await fileToGenerativePart(imageFile);
+                }
+
+                const prompt = `
+                Analyze the ingredients list in this image for a product in the category: "${category}".
+                Identify all ingredients.
+                
+                For each ingredient determine:
+                1. Name
+                2. Status: 'safe', 'moderate', 'unsafe'
+                3. Brief description of function/risk (max 10 words).
+                4. Risk tag (e.g. 'Carcinogen', 'Allergen', 'Irritant') if unsafe/moderate.
+                5. bannedIn: Array of strings (countries/regions like 'EU', 'USA', 'Japan') if it is banned anywhere.
+                
+                Also calculate an overall safety score (0-100) where 100 is perfectly safe.
+                
+                Return ONLY valid JSON with this structure:
+                {
+                    "score": 85,
+                    "summary": "Short 1-sentence summary of overall safety.",
+                    "ingredients": [
+                        { "name": "IngName", "status": "safe", "description": "...", "risk": "...", "bannedIn": ["EU"] }
+                    ]
+                }
+                `;
+
+                const result = await model.generateContent([prompt, imagePart]);
+                const response = await result.response;
+                const text = response.text();
+
+                // Clean markdown code blocks if present
+                const jsonStr = text.replace(/```json|```/g, '').trim();
+                const data = JSON.parse(jsonStr);
+
+                // Add profile conflict logic on top of AI results
+                const conflicts = [];
+                if (userProfile && userProfile.allergies) {
+                    data.ingredients.forEach(ing => {
+                        userProfile.allergies.forEach(allergy => {
+                            if (ing.name.toLowerCase().includes(allergy.toLowerCase())) {
+                                ing.status = 'unsafe';
+                                ing.risk = `Allergen: ${allergy}`;
+                                conflicts.push(allergy);
+                                data.score = Math.max(0, data.score - 20);
+                            }
+                        });
+                    });
+                }
+
+                return { ...data, conflicts };
+
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                console.log("Falling back to mock analysis...");
+                // Fall through to mock logic below
+            }
+        }
+
+        // --- FALLBACK MOCK LOGIC ---
         // Mock processing delay
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Select random ingredients from the category for demo purposes
-        // In a real app, OCR would extract text here
+        // Select random ingredients from the category
         const pool = MOCK_INGREDIENTS[category] || MOCK_INGREDIENTS['food'];
 
         // Return ALL ingredients from the pool (simulating a full scan)
@@ -75,9 +169,6 @@ export const analysisService = {
         // Check user profile conflicts
         const conflicts = []
         if (userProfile && userProfile.allergies) {
-            // Mock simple matching
-            // If user has 'Milk' allergy and we happen to have 'Milk' in our mock list (we don't for now, but logic stands)
-            // For demo, let's force a conflict if "Peanuts" is in profile and we add a fake peanut item if category is food
             if (category === 'food' && userProfile.allergies.includes('Peanuts')) {
                 detected.push({ name: 'Peanut Oil', status: 'unsafe', description: 'Contains allergens.', risk: 'Allergen: Peanuts' });
                 conflicts.push('Peanuts');

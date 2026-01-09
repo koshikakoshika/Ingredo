@@ -14,8 +14,12 @@ const CATEGORIES = [
 export default function LandingPage() {
     const navigate = useNavigate()
     const user = authService.getUser()
+    const [selectedCategory, setSelectedCategory] = React.useState(null)
 
-    const handleCategorySelect = (categoryId) => {
+    const handleCategorySelect = async (categoryId) => {
+        setSelectedCategory(categoryId)
+        // Add artificial delay for UX feedback
+        await new Promise(resolve => setTimeout(resolve, 500))
         // Navigate to scan page with category state
         navigate('/scan', { state: { category: categoryId } })
     }
@@ -67,16 +71,18 @@ export default function LandingPage() {
             </Card>
 
             {/* Categories Grid */}
-            <h3 className="font-bold text-xl text-gray-800 mb-4">Select Category</h3>
-            <div className="grid grid-cols-2 gap-3 mb-6">
+            <h3 className="font-bold text-xl text-gray-800 mb-4 text-center">Select Category</h3>
+            <div className="flex flex-wrap justify-center gap-3 mb-6">
                 {CATEGORIES.map(cat => (
                     <button
                         key={cat.id}
                         onClick={() => handleCategorySelect(cat.id)}
-                        className="chip w-full flex-col justify-center items-center text-center bg-gray-100 border-none hover:bg-gray-200 py-4 h-full gap-0.5 !rounded-full"
+                        className={`chip border shadow-sm transition-all duration-200 ${selectedCategory === cat.id
+                            ? 'bg-emerald-500 text-white border-emerald-500 scale-105'
+                            : 'bg-white border-gray-200 hover:border-emerald-500 hover:text-emerald-700 active:bg-emerald-50'
+                            }`}
                     >
-                        <span className="font-bold text-gray-900 leading-tight text-sm">{cat.name}</span>
-                        <span className="text-[11px] text-gray-500 font-medium leading-tight">{cat.description}</span>
+                        {cat.name}
                     </button>
                 ))}
             </div>
