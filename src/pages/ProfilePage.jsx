@@ -7,28 +7,36 @@ import Input from '../components/Input'
 
 const ALLERGY_OPTIONS = ['Milk', 'Eggs', 'Peanuts', 'Tree Nuts', 'Soy', 'Wheat', 'Fish', 'Shellfish']
 const SENSITIVITY_OPTIONS = ['MSG', 'Artificial Colors', 'Artificial Flavors', 'Fragrance', 'Parabens']
+const AGE_OPTIONS = ['Under 12', '12–17', '18–30', '31–50', '51+']
+const GENDER_OPTIONS = ['Female', 'Male', 'not prefer to say']
 
 export default function ProfilePage() {
     const navigate = useNavigate()
-    const [user, setUser] = useState(null)
-    const [profile, setProfile] = useState({
-        allergies: [],
-        sensitivities: [],
-        custom: ''
+    const [user, setUser] = useState(() => authService.getUser())
+    const [profile, setProfile] = useState(() => {
+        const currentUser = authService.getUser()
+        if (currentUser?.profile) {
+            return {
+                ...currentUser.profile,
+                custom: currentUser.profile.custom || '',
+                ageGroup: currentUser.profile.ageGroup || '',
+                gender: currentUser.profile.gender || ''
+            }
+        }
+        return {
+            allergies: [],
+            sensitivities: [],
+            custom: '',
+            ageGroup: '',
+            gender: ''
+        }
     })
-    const [isEditing, setIsEditing] = useState(false)
 
     useEffect(() => {
-        const currentUser = authService.getUser()
-        if (!currentUser) {
+        if (!user) {
             navigate('/login')
-            return
         }
-        setUser(currentUser)
-        if (currentUser.profile) {
-            setProfile({ ...currentUser.profile, custom: currentUser.profile.custom || '' })
-        }
-    }, [navigate])
+    }, [user, navigate])
 
     const toggleOption = (list, item) => {
         if (list.includes(item)) {
@@ -44,10 +52,13 @@ export default function ProfilePage() {
         }))
     }
 
+    const handleSingleChange = (key, value) => {
+        setProfile(prev => ({ ...prev, [key]: value }))
+    }
+
     const handleSave = () => {
         const updatedUser = authService.updateProfile(profile)
         setUser(updatedUser)
-        setIsEditing(false)
         navigate('/') // Go to dashboard after onboarding
     }
 
@@ -67,49 +78,63 @@ export default function ProfilePage() {
                 <Button variant="ghost" onClick={handleLogout} className="text-sm">Log Out</Button>
             </div>
 
-            <Card title="Health & Safety Settings" className="animate-fade-in">
-                <div className="mb-6">
-                    <label className="input-label mb-2 block">Allergies</label>
-                    <div className="flex flex-wrap gap-2">
-                        {ALLERGY_OPTIONS.map(opt => (
+            <Card title="Basic Details" className="animate-fade-in mb-6">
+                <div className="mb-4">
+                    <label className="input-label mb-4 block text-gray-700 font-semibold">Age Group</label>
+                    <div className="flex flex-wrap gap-3">
+                        {AGE_OPTIONS.map(opt => (
                             <button
                                 key={opt}
-                                onClick={() => handleProfileChange('allergies', opt)}
-                                className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${profile.allergies.includes(opt)
-                                    ? 'bg-red-50 border-red-200 text-red-600'
-                                    : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'
-                                    }`}
-                                style={{
-                                    backgroundColor: profile.allergies.includes(opt) ? 'var(--color-unsafe-bg)' : 'white',
-                                    borderColor: profile.allergies.includes(opt) ? 'var(--color-unsafe)' : 'var(--color-border)',
-                                    color: profile.allergies.includes(opt) ? 'var(--color-unsafe)' : 'var(--color-text-secondary)'
-                                }}
+                                onClick={() => handleSingleChange('ageGroup', opt)}
+                                className={`chip chip-blue ${profile.ageGroup === opt ? 'active' : ''}`}
                             >
-                                {profile.allergies.includes(opt) && '⚠ '}
                                 {opt}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                <div className="mb-6">
-                    <label className="input-label mb-2 block">Sensitivities</label>
-                    <div className="flex flex-wrap gap-2">
+                <div className="mb-4">
+                    <label className="input-label mb-4 block text-gray-700 font-semibold">Gender</label>
+                    <div className="flex flex-wrap gap-3">
+                        {GENDER_OPTIONS.map(opt => (
+                            <button
+                                key={opt}
+                                onClick={() => handleSingleChange('gender', opt)}
+                                className={`chip chip-blue ${profile.gender === opt ? 'active' : ''}`}
+                            >
+                                {opt}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </Card>
+
+            <Card title="Health & Safety Settings" className="animate-fade-in">
+                <div className="mb-4">
+                    <label className="input-label mb-4 block text-gray-700 font-semibold">Food Allergies</label>
+                    <div className="flex flex-wrap gap-3">
+                        {ALLERGY_OPTIONS.map(opt => (
+                            <button
+                                key={opt}
+                                onClick={() => handleProfileChange('allergies', opt)}
+                                className={`chip chip-red ${profile.allergies.includes(opt) ? 'active' : ''}`}
+                            >
+                                {opt}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="mb-4">
+                    <label className="input-label mb-4 block text-gray-700 font-semibold">Sensitivities</label>
+                    <div className="flex flex-wrap gap-3">
                         {SENSITIVITY_OPTIONS.map(opt => (
                             <button
                                 key={opt}
                                 onClick={() => handleProfileChange('sensitivities', opt)}
-                                className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${profile.sensitivities.includes(opt)
-                                    ? 'bg-amber-50 border-amber-200 text-amber-600'
-                                    : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'
-                                    }`}
-                                style={{
-                                    backgroundColor: profile.sensitivities.includes(opt) ? 'var(--color-moderate-bg)' : 'white',
-                                    borderColor: profile.sensitivities.includes(opt) ? 'var(--color-moderate)' : 'var(--color-border)',
-                                    color: profile.sensitivities.includes(opt) ? 'var(--color-moderate)' : 'var(--color-text-secondary)'
-                                }}
+                                className={`chip chip-amber ${profile.sensitivities.includes(opt) ? 'active' : ''}`}
                             >
-                                {profile.sensitivities.includes(opt) && '! '}
                                 {opt}
                             </button>
                         ))}
@@ -123,7 +148,7 @@ export default function ProfilePage() {
                     onChange={(e) => setProfile(prev => ({ ...prev, custom: e.target.value }))}
                 />
 
-                <div className="mt-6">
+                <div className="mt-8">
                     <Button fullWidth onClick={handleSave}>
                         Save & Continue
                     </Button>

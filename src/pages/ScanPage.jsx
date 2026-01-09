@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Webcam from 'react-webcam'
-import { Camera, Image } from 'lucide-react'
+import { Camera, Image, ArrowLeft } from 'lucide-react'
 import { authService } from '../services/authService'
 import { analysisService } from '../services/analysisService'
 import Button from '../components/Button'
@@ -72,8 +72,13 @@ export default function ScanPage() {
         <div className="pb-20 animate-fade-in h-screen flex flex-col">
             {/* Header */}
             <div className="flex items-center p-4 bg-white shadow-sm z-10 shrink-0">
-                <button onClick={() => navigate('/')} className="mr-3 text-2xl bg-transparent border-none cursor-pointer flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100">
-                    ←
+                <button
+                    onClick={() => navigate('/')}
+                    className="mr-3 p-2 text-gray-600 rounded-full cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-center focus:outline-none"
+                    style={{ border: 'none', background: 'transparent', boxShadow: 'none', outline: 'none' }}
+                    aria-label="Go back"
+                >
+                    <ArrowLeft size={24} />
                 </button>
                 <div>
                     <h1 className="text-lg font-bold text-gray-900">{displayCategory} Inspector</h1>
@@ -93,7 +98,7 @@ export default function ScanPage() {
                                     videoConstraints={{ facingMode: 'environment' }}
                                     className="h-full w-full object-cover"
                                 />
-                                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent flex gap-4">
+                                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent flex gap-4">
                                     <Button variant="secondary" onClick={() => setShowCamera(false)} className="bg-white/20 text-white border-white/20 hover:bg-white/30 backdrop-blur-md flex-1">
                                         Cancel
                                     </Button>
@@ -112,7 +117,7 @@ export default function ScanPage() {
                                     Take a clear photo of the ingredient list on the back of the package.
                                 </p>
 
-                                <div className="flex flex-col gap-4 w-full max-w-xs">
+                                <div className="flex flex-col gap-4 w-full max-w-xs mx-auto">
                                     <Button onClick={() => setShowCamera(true)} fullWidth className="h-12 text-lg shadow-md shadow-emerald-200">
                                         Open Live Camera
                                     </Button>
@@ -180,30 +185,35 @@ export default function ScanPage() {
                     <div>
                         <h3 className="font-bold mb-3">Ingredient Breakdown</h3>
                         <div className="flex flex-col gap-3">
-                            {result.ingredients.map((ing, idx) => (
-                                <div key={idx} className="bg-white p-3 rounded-lg border shadow-sm flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="font-semibold">{ing.name}</span>
-                                            {ing.risk && (
-                                                <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase">
-                                                    {ing.risk}
-                                                </span>
+                            {result.ingredients
+                                .sort((a, b) => {
+                                    const priority = { unsafe: 0, moderate: 1, safe: 2, unknown: 3 }
+                                    return (priority[a.status] ?? 3) - (priority[b.status] ?? 3)
+                                })
+                                .map((ing, idx) => (
+                                    <div key={idx} className="bg-white p-3 rounded-lg border shadow-sm flex justify-between items-start">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="font-semibold">{ing.name}</span>
+                                                {ing.risk && (
+                                                    <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase">
+                                                        {ing.risk}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-secondary mb-1">{ing.description}</p>
+                                            {ing.bannedIn && (
+                                                <button
+                                                    onClick={() => setSelectedBan(ing)}
+                                                    className="text-xs text-red-500 font-medium bg-transparent border-none p-0 cursor-pointer underline hover:text-red-700"
+                                                >
+                                                    🚫 Banned in: {ing.bannedIn.join(', ')} (tap for details)
+                                                </button>
                                             )}
                                         </div>
-                                        <p className="text-xs text-secondary mb-1">{ing.description}</p>
-                                        {ing.bannedIn && (
-                                            <button
-                                                onClick={() => setSelectedBan(ing)}
-                                                className="text-xs text-red-500 font-medium bg-transparent border-none p-0 cursor-pointer underline hover:text-red-700"
-                                            >
-                                                🚫 Banned in: {ing.bannedIn.join(', ')} (tap for details)
-                                            </button>
-                                        )}
+                                        <SafetyBadge status={ing.status} size="md" />
                                     </div>
-                                    <SafetyBadge status={ing.status} size="md" />
-                                </div>
-                            ))}
+                                ))}
                         </div>
 
                         <div className="md:hidden mt-6">
@@ -235,8 +245,11 @@ export default function ScanPage() {
 
                         <h5 className="font-bold mb-2">Why is it banned?</h5>
                         <p className="text-sm text-secondary mb-4">
-                            Regulatory bodies in these regions have linked this ingredient to potential health risks such as {selectedBan.risk ? selectedBan.risk.toLowerCase() : 'toxicity or carcinogenicity'}.
-                            It is deemed stricter to exclude it from consumer products to ensure public safety.
+                            {selectedBan.banReason ? (
+                                selectedBan.banReason
+                            ) : (
+                                `Regulatory bodies in these regions have linked this ingredient to potential health risks such as ${selectedBan.risk ? selectedBan.risk.toLowerCase() : 'toxicity or carcinogenicity'}. It is deemed stricter to exclude it from consumer products to ensure public safety.`
+                            )}
                         </p>
 
                         <h5 className="font-bold mb-2">Recommendation</h5>

@@ -3,15 +3,41 @@ const MOCK_INGREDIENTS = {
         { name: 'Water', status: 'safe', description: 'Essential for hydration.' },
         { name: 'Sugar', status: 'moderate', description: 'High consumption linked to health issues.' },
         { name: 'Sodium Benzoate', status: 'moderate', description: 'Preservative. Some concerns when mixed with Vitamin C.' },
-        { name: 'Red 40', status: 'unsafe', description: 'Artificial color linked to hyperactivity in children.', bannedIn: ['Norway', 'Austria'] },
+        {
+            name: 'Red 40',
+            status: 'unsafe',
+            description: 'Artificial color linked to hyperactivity in children.',
+            bannedIn: ['Norway', 'Austria'],
+            banReason: 'Linked to hyperactivity in children and potential genotoxicity concerns.'
+        },
         { name: 'Whole Wheat Flour', status: 'safe', description: 'Good source of fiber.' },
-        { name: 'High Fructose Corn Syrup', status: 'moderate', description: 'Added sweetener. Calorie dense.' }
+        { name: 'High Fructose Corn Syrup', status: 'moderate', description: 'Added sweetener. Calorie dense.' },
+        {
+            name: 'Potassium Bromate',
+            status: 'unsafe',
+            description: 'Dough conditioner.',
+            bannedIn: ['EU', 'Canada', 'China'],
+            banReason: 'Classified as a category 2B carcinogen by the IARC. Linked to kidney and thyroid damage.'
+        }
     ],
     cosmetics: [
         { name: 'Aqua', status: 'safe', description: 'Water.' },
-        { name: 'Parabens', status: 'unsafe', description: 'Preservative with potential endocrine disruption risks.', bannedIn: ['EU'] },
+        {
+            name: 'Parabens',
+            status: 'unsafe',
+            description: 'Preservative with potential endocrine disruption risks.',
+            bannedIn: ['EU'],
+            banReason: 'Long-chain parabens (Isopropylparaben, Isobutylparaben) are banned in the EU due to lack of data on safety and potential endocrine disrupting properties.'
+        },
         { name: 'Fragrance', status: 'moderate', description: 'Common allergen. Exact composition often hidden.' },
-        { name: 'Glycerin', status: 'safe', description: 'Moisturizer.' }
+        { name: 'Glycerin', status: 'safe', description: 'Moisturizer.' },
+        {
+            name: 'Hydroquinone',
+            status: 'unsafe',
+            description: 'Skin lightening agent.',
+            bannedIn: ['EU', 'Japan', 'Australia'],
+            banReason: 'Prohibited due to potential carcinogenicity and ochronosis (skin darkening/disfiguration).'
+        }
     ],
     household: [
         { name: 'Sodium Hypochlorite', status: 'unsafe', description: 'Bleach. Toxic if ingested or mixed with ammonia.', risk: 'Irritant' },
@@ -32,9 +58,8 @@ export const analysisService = {
         // In a real app, OCR would extract text here
         const pool = MOCK_INGREDIENTS[category] || MOCK_INGREDIENTS['food'];
 
-        // Shuffle and pick 3-5
-        const shuffled = [...pool].sort(() => 0.5 - Math.random());
-        const detected = shuffled.slice(0, Math.floor(Math.random() * 3) + 3);
+        // Return ALL ingredients from the pool (simulating a full scan)
+        const detected = [...pool].sort(() => 0.5 - Math.random());
 
         // Calculate score
         const unsafeCount = detected.filter(i => i.status === 'unsafe').length;

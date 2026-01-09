@@ -23,13 +23,13 @@ export default function LandingPage() {
     return (
         <div className="pb-20 animate-fade-in max-w-4xl mx-auto">
             {/* Header Section */}
-            <div className="flex justify-between items-center mb-8 pt-4">
+            <div className="flex justify-between items-center mb-4 pt-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
                         Ingredo
                     </h1>
                     <p className="text-sm text-gray-500 font-medium">
-                        Ingredient Safety Intelligence
+                        Know What’s Inside. Know What’s Safe.
                     </p>
                 </div>
                 {!user && (
@@ -67,21 +67,16 @@ export default function LandingPage() {
             </Card>
 
             {/* Categories Grid */}
-            <h3 className="font-bold text-xl text-gray-800 mb-6">Select Category</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <h3 className="font-bold text-xl text-gray-800 mb-4">Select Category</h3>
+            <div className="grid grid-cols-2 gap-3 mb-6">
                 {CATEGORIES.map(cat => (
                     <button
                         key={cat.id}
                         onClick={() => handleCategorySelect(cat.id)}
-                        className="group relative p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all text-left flex flex-col gap-4 overflow-hidden"
+                        className="chip w-full flex-col justify-center items-center text-center bg-gray-100 border-none hover:bg-gray-200 py-4 h-full gap-0.5 !rounded-full"
                     >
-                        <div className="text-emerald-600 group-hover:scale-110 transition-transform duration-300 bg-emerald-50 w-12 h-12 rounded-lg flex items-center justify-center">
-                            {cat.icon}
-                        </div>
-                        <div>
-                            <span className="font-bold text-gray-900 block mb-1">{cat.name}</span>
-                            <span className="text-xs text-gray-500">{cat.description}</span>
-                        </div>
+                        <span className="font-bold text-gray-900 leading-tight text-sm">{cat.name}</span>
+                        <span className="text-[11px] text-gray-500 font-medium leading-tight">{cat.description}</span>
                     </button>
                 ))}
             </div>
