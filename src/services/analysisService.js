@@ -92,23 +92,32 @@ export const analysisService = {
 
                 const prompt = `
                 Analyze the ingredients list in this image for a product in the category: "${category}".
-                Identify all ingredients.
+                
+                IMPORTANT INSTRUCTION ON PARSING:
+                This image likely contains an ingredient list with complex nested items, like "Cheese Seasoning (Whey, Cheddar Cheese, Salt, ...)" or "Enriched Corn Meal (Corn Meal, Ferrous Sulfate...)".
+                
+                Please break this down into the MAIN ingredients (the headings before the parentheses).
+                For example, if you see "Cheese Seasoning (Whey, Salt)", treat "Cheese Seasoning" as the ingredient name, but analyze its CONTENT (Whey, Salt) to determine the safety.
+                
+                If a main ingredient has sub-ingredients that are dangerous (like 'Red 40' inside a seasoning), flag the MAIN ingredient as moderate or unsafe and mention the specific culprit in the description/risk.
+
+                Identify ALL unique main ingredients.
                 
                 For each ingredient determine:
-                1. Name
+                1. Name (Use the main heading, e.g. "Enriched Corn Meal", "Vegetable Oil", "Cheese Seasoning")
                 2. Status: 'safe', 'moderate', 'unsafe'
-                3. Brief description of function/risk (max 10 words).
-                4. Risk tag (e.g. 'Carcinogen', 'Allergen', 'Irritant') if unsafe/moderate.
-                5. bannedIn: Array of strings (countries/regions like 'EU', 'USA', 'Japan') if it is banned anywhere.
+                3. Brief description (max 10 words). Mention key sub-ingredients if relevant.
+                4. Risk tag (e.g. 'Carcinogen', 'Allergen', 'Irritant', 'High Processing') if unsafe/moderate.
+                5. bannedIn: Array of strings (countries like 'EU', 'California') if it or its sub-ingredients are banned.
                 
-                Also calculate an overall safety score (0-100) where 100 is perfectly safe.
+                Also calculate an overall safety score (0-100).
                 
-                Return ONLY valid JSON with this structure:
+                Return ONLY valid JSON:
                 {
                     "score": 85,
-                    "summary": "Short 1-sentence summary of overall safety.",
+                    "summary": "Short 1-sentence summary.",
                     "ingredients": [
-                        { "name": "IngName", "status": "safe", "description": "...", "risk": "...", "bannedIn": ["EU"] }
+                        { "name": "Cheese Seasoning", "status": "moderate", "description": "Contains milk and artificial colors like Yellow 6.", "risk": "Artificial Color", "bannedIn": ["Norway"] }
                     ]
                 }
                 `;
